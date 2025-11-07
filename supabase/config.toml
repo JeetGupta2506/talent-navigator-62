@@ -1,0 +1,18 @@
+project_id = "bigomcegjcrpbqvuyqyk"
+
+[auth]
+enabled = true
+site_url = "https://lovable.dev"
+additional_redirect_urls = ["https://lovable.app"]
+
+[functions.analyze-jd]
+verify_jwt = false
+
+[functions.screen-resume]
+verify_jwt = false
+
+[functions.generate-interview]
+verify_jwt = false
+
+[functions.score-answer]
+verify_jwt = false

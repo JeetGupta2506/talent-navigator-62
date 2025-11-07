@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { FileText, Users, MessageSquare, BarChart3 } from "lucide-react";
+import { FileText, Users, MessageSquare, BarChart3, Sparkles } from "lucide-react";
 import JobDescriptionUpload from "@/components/hr/JobDescriptionUpload";
 import ResumeUpload from "@/components/hr/ResumeUpload";
 import CandidateList from "@/components/hr/CandidateList";
 import InterviewInterface from "@/components/hr/InterviewInterface";
+import CompletePipeline from "@/components/hr/CompletePipeline";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("upload");
@@ -67,7 +68,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="interview">
-            <InterviewInterface candidates={candidates} />
+            <InterviewInterface candidates={candidates} jobDescription={jobDescription} />
           </TabsContent>
 
           <TabsContent value="analytics">

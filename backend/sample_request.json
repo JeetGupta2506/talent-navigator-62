@@ -1,0 +1,20 @@
+{
+  "job_description": "Machine Learning Engineer - Senior Level\n\nWe're looking for an experienced ML Engineer to join our AI team.\n\nRequired Skills:\n- Python, TensorFlow, PyTorch\n- Machine Learning, Deep Learning\n- NLP, Computer Vision\n- AWS or GCP\n- Docker, Kubernetes\n\nMinimum 5 years of ML experience required.\nMaster's degree in Computer Science or related field preferred.",
+  
+  "resume_text": "JOHN DOE\nSenior Machine Learning Engineer\n\nExperience:\n- 7 years of ML/AI development\n- Expert in Python, TensorFlow, and PyTorch\n- Built production NLP systems processing 1M+ documents\n- Deployed models on AWS using Docker and Kubernetes\n- Led team of 5 ML engineers\n\nEducation:\n- M.S. Computer Science, Stanford University\n- B.S. Computer Engineering, MIT\n\nSkills:\nPython, TensorFlow, PyTorch, Scikit-learn, Pandas, NumPy\nNLP, Deep Learning, Computer Vision, Reinforcement Learning\nAWS, Docker, Kubernetes, MLflow, Airflow\n\nProjects:\n- Built sentiment analysis system with 95% accuracy\n- Developed object detection pipeline for autonomous vehicles\n- Created recommendation engine serving 10M users",
+  
+  "interview_qa": [
+    {
+      "question": "Can you describe your experience with deep learning frameworks?",
+      "answer": "I've been working with TensorFlow for 5 years and PyTorch for 3 years. I prefer PyTorch for research and prototyping due to its dynamic computation graph, while I use TensorFlow for production deployments. I've built CNNs, RNNs, and Transformers for various tasks including computer vision and NLP."
+    },
+    {
+      "question": "How do you handle model deployment and monitoring in production?",
+      "answer": "I use Docker to containerize models and deploy them on Kubernetes for scalability. For monitoring, I implement MLflow for experiment tracking and model versioning, along with Prometheus and Grafana for real-time performance metrics. I also set up A/B testing frameworks to compare model versions and establish alerts for model drift and performance degradation."
+    },
+    {
+      "question": "Tell me about a challenging ML project you worked on.",
+      "answer": "I led the development of a real-time object detection system for autonomous vehicles. The main challenge was achieving 30 FPS inference while maintaining 95% accuracy on edge devices with limited compute. I optimized the model architecture using MobileNet as a backbone, implemented TensorRT for GPU acceleration, and created efficient preprocessing pipelines. The system is now deployed in over 500 vehicles and has processed millions of frames reliably."
+    }
+  ]
+}

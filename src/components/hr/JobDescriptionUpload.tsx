@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { analyzeJobDescription } from "@/services/api";
 
 interface JobDescriptionUploadProps {
   onJobDescriptionSubmit: (jd: string) => void;
@@ -29,30 +30,19 @@ const JobDescriptionUpload = ({ onJobDescriptionSubmit }: JobDescriptionUploadPr
     setIsAnalyzing(true);
     
     try {
-      // Call AI agent to analyze JD
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-jd`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ jobDescription }),
-      });
-
-      if (!response.ok) throw new Error("Analysis failed");
-
-      const data = await response.json();
-      setExtractedSkills(data.skills || []);
+      const data = await analyzeJobDescription(jobDescription);
+      setExtractedSkills(data.top_skills || []);
       onJobDescriptionSubmit(jobDescription);
       
       toast({
         title: "Analysis Complete",
-        description: `Extracted ${data.skills?.length || 0} key skills`,
+        description: `Extracted ${data.top_skills?.length || 0} key skills (${data.word_count} words)`,
       });
     } catch (error) {
+      console.error("Analysis error:", error);
       toast({
         title: "Error",
-        description: "Failed to analyze job description",
+        description: "Failed to analyze job description. Make sure the backend is running.",
         variant: "destructive",
       });
     } finally {

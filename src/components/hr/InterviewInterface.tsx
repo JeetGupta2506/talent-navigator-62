@@ -6,12 +6,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, MessageSquare, Send } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { generateInterviewQuestions, scoreAnswer } from "@/services/api";
 
 interface InterviewInterfaceProps {
   candidates: any[];
+  jobDescription?: string;
 }
 
-const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
+const InterviewInterface = ({ candidates, jobDescription }: InterviewInterfaceProps) => {
   const [selectedCandidate, setSelectedCandidate] = useState<string>("");
   const [questions, setQuestions] = useState<any[]>([]);
   // store draft answers per-question so typing in one box doesn't affect others
@@ -31,38 +33,42 @@ const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
       return;
     }
 
+    if (!jobDescription) {
+      toast({
+        title: "Warning",
+        description: "No job description available. Questions will be generic.",
+        variant: "destructive",
+      });
+    }
+
     setIsGenerating(true);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-interview`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({ candidateName: selectedCandidate }),
-        }
+      // Pass the full job description to generate targeted questions
+      const data = await generateInterviewQuestions(
+        selectedCandidate, 
+        jobDescription,  // Use the actual job description
+        5
       );
-
-      if (!response.ok) throw new Error("Failed to generate questions");
-
-      const data = await response.json();
-  setQuestions(data.questions || []);
-  // reset any draft answers when new questions are generated
-  const initAnswers: Record<number, string> = {};
-  (data.questions || []).forEach((_: any, i: number) => (initAnswers[i] = ""));
-  setAnswers(initAnswers);
+      
+      // Map array of questions to objects with question property
+      const questionObjects = data.questions.map((q: string) => ({ question: q }));
+      setQuestions(questionObjects);
+      
+      // reset any draft answers when new questions are generated
+      const initAnswers: Record<number, string> = {};
+      questionObjects.forEach((_: any, i: number) => (initAnswers[i] = ""));
+      setAnswers(initAnswers);
       
       toast({
         title: "Questions Generated",
-        description: `Generated ${data.questions?.length || 0} interview questions`,
+        description: `Generated ${data.questions?.length || 0} AI-powered interview questions`,
       });
     } catch (error) {
+      console.error("Question generation error:", error);
       toast({
         title: "Error",
-        description: "Failed to generate interview questions",
+        description: "Failed to generate interview questions. Make sure the backend is running.",
         variant: "destructive",
       });
     } finally {
@@ -86,24 +92,8 @@ const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
   setScoring((s) => ({ ...s, [questionIndex]: true }));
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/score-answer`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            question: questions[questionIndex].question,
-            answer: draft,
-          }),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to score answer");
-
-      const data = await response.json();
+      const questionText = questions[questionIndex]?.question || "";
+      const data = await scoreAnswer(draft, undefined, undefined, jobDescription, questionText);
       
       const updatedQuestions = [...questions];
       updatedQuestions[questionIndex] = {
@@ -119,12 +109,13 @@ const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
       
       toast({
         title: "Answer Scored",
-        description: `Score: ${data.score}/10`,
+        description: `Score: ${data.score}/100`,
       });
     } catch (error) {
+      console.error("Scoring error:", error);
       toast({
         title: "Error",
-        description: "Failed to score answer",
+        description: "Failed to score answer. Make sure the backend is running.",
         variant: "destructive",
       });
     } finally {
@@ -195,8 +186,8 @@ const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
                 <div className="flex items-start justify-between">
                   <h3 className="font-semibold">Question {index + 1}</h3>
                   {q.score && (
-                    <Badge variant={q.score >= 7 ? "default" : q.score >= 5 ? "secondary" : "destructive"}>
-                      {q.score}/10
+                    <Badge variant={q.score >= 70 ? "default" : q.score >= 50 ? "secondary" : "destructive"}>
+                      {q.score}/100
                     </Badge>
                   )}
                 </div>

@@ -6,3 +6,5 @@ httpx
 langchain
 langgraph
 langchain-google-genai
+PyPDF2
+python-multipart

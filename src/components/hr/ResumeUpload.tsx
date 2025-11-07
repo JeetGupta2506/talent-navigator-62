@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { screenResume, uploadResumeFile, uploadEvaluateCandidateFile, evaluateCandidate } from "@/services/api";
 
 interface ResumeUploadProps {
   jobDescription: string;
@@ -41,44 +42,57 @@ const ResumeUpload = ({ jobDescription, onCandidatesUpdate }: ResumeUploadProps)
     setIsProcessing(true);
 
     try {
-      // Process each resume
       const candidates = [];
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
-        const text = await file.text();
-        
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/screen-resume`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            },
-            body: JSON.stringify({
-              jobDescription,
-              resume: text,
-              candidateName: file.name.replace(/\.[^/.]+$/, ""),
-            }),
-          }
-        );
+        let res;
+        if (file.type === "application/pdf") {
+          // If a file (PDF) is uploaded, run the full pipeline on the server (LangGraph)
+          const pipelineRes = await uploadEvaluateCandidateFile(file, jobDescription);
 
-        if (!response.ok) throw new Error(`Failed to screen ${file.name}`);
+          const finalEval: any = pipelineRes.final_evaluation || {};
+          const resumeEval: any = pipelineRes.resume_eval || { matched_skills: [], missing_skills: [], skill_match: 0 };
 
-        const data = await response.json();
-        candidates.push({ ...data, fileName: file.name });
+          const matchScore = Math.round(finalEval.overall_score || resumeEval.skill_match || 0);
+          candidates.push({
+            candidateName: file.name.replace(/\.[^/.]+$/, ""),
+            fileName: file.name,
+            matchScore,
+            matchedSkills: resumeEval.matched_skills || [],
+            missingSkills: resumeEval.missing_skills || [],
+            summary: finalEval.summary || resumeEval.comment || "",
+          });
+        } else {
+          // Fallback: send raw text to the complete pipeline (text path)
+          const text = await file.text();
+          const pipelineRes = await evaluateCandidate(jobDescription, text);
+
+          const finalEval: any = pipelineRes.final_evaluation || {};
+          const resumeEval: any = pipelineRes.resume_eval || { matched_skills: [], missing_skills: [], skill_match: 0 };
+          const matchScore = Math.round(finalEval.overall_score || resumeEval.skill_match || 0);
+
+          candidates.push({
+            candidateName: file.name.replace(/\.[^/.]+$/, ""),
+            fileName: file.name,
+            matchScore,
+            matchedSkills: resumeEval.matched_skills || [],
+            missingSkills: resumeEval.missing_skills || [],
+            summary: finalEval.summary || resumeEval.comment || "",
+          });
+        }
       }
 
       onCandidatesUpdate(candidates);
-      
+            
       toast({
         title: "Screening Complete",
         description: `Processed ${candidates.length} candidate(s)`,
       });
     } catch (error) {
+      console.error("Screening error:", error);
       toast({
         title: "Error",
-        description: "Failed to screen resumes",
+        description: "Failed to screen resumes. Make sure the backend is running.",
         variant: "destructive",
       });
     } finally {

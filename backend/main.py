@@ -5,7 +5,10 @@ from typing import List, Optional
 import re
 import os
 
-from . import gemini_client
+try:
+    from . import gemini_client
+except ImportError:
+    import gemini_client
 
 app = FastAPI(title="Talent Navigator Backend")
 

@@ -98,20 +98,86 @@ const ResumeUpload = ({ jobDescription, onCandidatesUpdate }: ResumeUploadProps)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center hover:border-primary transition-colors">
-          <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <div 
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors relative ${
+            !jobDescription 
+              ? 'border-muted/50 bg-muted/5 cursor-not-allowed' 
+              : 'border-muted hover:border-primary'
+          }`}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.currentTarget.classList.add('border-primary');
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.currentTarget.classList.remove('border-primary');
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.currentTarget.classList.remove('border-primary');
+            const files = e.dataTransfer.files;
+            if (files?.length) {
+              setSelectedFiles(files);
+            }
+          }}
+        >
           <Input
             type="file"
+            id="resume-upload"
             accept=".txt,.pdf,.doc,.docx"
             multiple
             onChange={handleFileChange}
-            className="max-w-xs mx-auto"
+            className="hidden"
+            disabled={!jobDescription}
           />
-          <p className="text-sm text-muted-foreground mt-4">
-            {selectedFiles 
-              ? `${selectedFiles.length} file(s) selected`
-              : "Support for .txt, .pdf, .doc, .docx files"}
-          </p>
+          
+          <div className="space-y-4">
+            <Upload className={`h-12 w-12 mx-auto ${!jobDescription ? 'text-muted-foreground/50' : 'text-muted-foreground'}`} />
+            
+            <div className="space-y-2">
+              {!jobDescription ? (
+                <div className="space-y-3">
+                  <Button
+                    variant="outline"
+                    disabled
+                    className="opacity-50 cursor-not-allowed"
+                  >
+                    Choose Files
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  variant="outline"
+                  onClick={() => document.getElementById('resume-upload')?.click()}
+                >
+                  Choose Files
+                </Button>
+              )}
+              
+              <p className="text-sm font-medium">
+                {selectedFiles 
+                  ? `${selectedFiles.length} ${selectedFiles.length === 1 ? 'resume' : 'resumes'} selected` 
+                  : jobDescription 
+                    ? 'Drag & drop files here or click Choose Files'
+                    : ''}
+              </p>
+              
+              {selectedFiles && selectedFiles.length > 0 && (
+                <ul className="text-sm text-muted-foreground space-y-1 max-h-32 overflow-y-auto mx-auto max-w-md">
+                  {Array.from(selectedFiles).map((file, i) => (
+                    <li key={i} className="truncate">{file.name}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            
+            <p className="text-xs text-muted-foreground">
+              Supports multiple .txt, .pdf, .doc, or .docx files
+            </p>
+          </div>
         </div>
 
         <Button

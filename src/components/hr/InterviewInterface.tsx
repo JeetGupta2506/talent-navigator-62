@@ -14,9 +14,11 @@ interface InterviewInterfaceProps {
 const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
   const [selectedCandidate, setSelectedCandidate] = useState<string>("");
   const [questions, setQuestions] = useState<any[]>([]);
-  const [currentAnswer, setCurrentAnswer] = useState("");
+  // store draft answers per-question so typing in one box doesn't affect others
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isScoring, setIsScoring] = useState(false);
+  // track scoring state per-question so only the active question shows the spinner
+  const [scoring, setScoring] = useState<Record<number, boolean>>({});
   const { toast } = useToast();
 
   const handleGenerateQuestions = async () => {
@@ -47,7 +49,11 @@ const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
       if (!response.ok) throw new Error("Failed to generate questions");
 
       const data = await response.json();
-      setQuestions(data.questions || []);
+  setQuestions(data.questions || []);
+  // reset any draft answers when new questions are generated
+  const initAnswers: Record<number, string> = {};
+  (data.questions || []).forEach((_: any, i: number) => (initAnswers[i] = ""));
+  setAnswers(initAnswers);
       
       toast({
         title: "Questions Generated",
@@ -65,7 +71,9 @@ const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
   };
 
   const handleSubmitAnswer = async (questionIndex: number) => {
-    if (!currentAnswer.trim()) {
+    const draft = (answers[questionIndex] || "").trim();
+
+    if (!draft) {
       toast({
         title: "Error",
         description: "Please provide an answer",
@@ -74,7 +82,8 @@ const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
       return;
     }
 
-    setIsScoring(true);
+  // mark this question as scoring
+  setScoring((s) => ({ ...s, [questionIndex]: true }));
 
     try {
       const response = await fetch(
@@ -87,7 +96,7 @@ const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
           },
           body: JSON.stringify({
             question: questions[questionIndex].question,
-            answer: currentAnswer,
+            answer: draft,
           }),
         }
       );
@@ -99,13 +108,14 @@ const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
       const updatedQuestions = [...questions];
       updatedQuestions[questionIndex] = {
         ...updatedQuestions[questionIndex],
-        answer: currentAnswer,
+        answer: draft,
         score: data.score,
         feedback: data.feedback,
       };
       
       setQuestions(updatedQuestions);
-      setCurrentAnswer("");
+      // clear the draft for this question
+      setAnswers((prev) => ({ ...prev, [questionIndex]: "" }));
       
       toast({
         title: "Answer Scored",
@@ -118,7 +128,8 @@ const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
         variant: "destructive",
       });
     } finally {
-      setIsScoring(false);
+      // clear scoring flag for this question
+      setScoring((s) => ({ ...s, [questionIndex]: false }));
     }
   };
 
@@ -199,16 +210,16 @@ const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
                   <div className="space-y-2">
                     <Textarea
                       placeholder="Candidate's answer..."
-                      value={currentAnswer}
-                      onChange={(e) => setCurrentAnswer(e.target.value)}
+                      value={answers[index] ?? ""}
+                      onChange={(e) => setAnswers((prev) => ({ ...prev, [index]: e.target.value }))}
                       className="min-h-[100px]"
                     />
                     <Button
                       onClick={() => handleSubmitAnswer(index)}
-                      disabled={isScoring}
+                      disabled={Boolean(scoring[index])}
                       size="sm"
                     >
-                      {isScoring ? (
+                      {scoring[index] ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Scoring...

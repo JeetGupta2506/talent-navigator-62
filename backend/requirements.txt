@@ -2,4 +2,6 @@ fastapi
 uvicorn[standard]
 python-dotenv
 httpx
-google-generativeai
+google-ai-generative-language
+langchain
+langgraph

@@ -38,9 +38,6 @@ const CandidateList = ({ candidates }: CandidateListProps) => {
       <Card>
         <CardHeader>
           <CardTitle>Candidate Screening Results</CardTitle>
-          <CardDescription>
-            AI-powered analysis of {candidates.length} candidate(s)
-          </CardDescription>
         </CardHeader>
       </Card>
 

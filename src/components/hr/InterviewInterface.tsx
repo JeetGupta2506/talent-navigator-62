@@ -154,9 +154,6 @@ const InterviewInterface = ({ candidates }: InterviewInterfaceProps) => {
             <MessageSquare className="h-5 w-5 text-primary" />
             <CardTitle>AI Interview Bot</CardTitle>
           </div>
-          <CardDescription>
-            Generate and conduct AI-powered interviews
-          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-4">

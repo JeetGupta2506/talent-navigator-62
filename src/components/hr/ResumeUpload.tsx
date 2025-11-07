@@ -94,7 +94,7 @@ const ResumeUpload = ({ jobDescription, onCandidatesUpdate }: ResumeUploadProps)
           <CardTitle>Resume Screener</CardTitle>
         </div>
         <CardDescription>
-          Upload candidate resumes for AI-powered screening
+          Upload candidate resumes
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

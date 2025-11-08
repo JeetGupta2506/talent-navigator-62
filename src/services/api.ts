@@ -1,6 +1,6 @@
 // API client for FastAPI backend
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 interface JDAnalysisResponse {
   word_count: number;

@@ -180,11 +180,29 @@ The pipeline includes robust fallbacks:
 4. **Review intermediate outputs** to understand the evaluation flow
 5. **Adjust weights and thresholds** based on your hiring criteria
 
-## 📸 ScreenShots
+---
 
-![Landing page](<screenshots/Upload.png>)
-![bot](<screenshots/bot.png>)
-![score](<screenshots/score.png>)
+## 🚀 Deployment
 
+This application can be deployed using:
+- **Frontend**: Vercel (React + Vite)
+- **Backend**: Render (FastAPI + Python)
 
+### Quick Start
+
+1. **Backend (Render)**:
+   - Deploy from `backend/` directory
+   - Add `GOOGLE_API_KEY` environment variable
+   - Use: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+
+2. **Frontend (Vercel)**:
+   - Deploy from root directory
+   - Add `VITE_API_URL` environment variable pointing to your backend
+   - Vercel will auto-detect Vite configuration
+
+📖 **Full Deployment Guide**: See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed step-by-step instructions.
+
+✅ **Deployment Checklist**: See [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) for a quick checklist.
+
+---
 

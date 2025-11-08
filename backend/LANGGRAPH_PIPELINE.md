@@ -1,6 +1,14 @@
-# LangGraph Multi-Agent Recruitment Pipeline
+# 🧠 Recruitment Assistant - Multi-Agent HR Evaluation System (LangGraph + GenAI)
+🚀 An intelligent AI-powered HR Assistant that analyzes job descriptions, screens resumes, evaluates interview answers, and provides final hiring recommendations — all powered by LangGraph, Gemini LLM, and FastAPI.
 
-A sophisticated AI-powered recruitment system using LangGraph to orchestrate multiple specialized agents for comprehensive candidate evaluation.
+## 📋 Overview
+
+Talent Navigator AI is a multi-agent HR automation system that simulates how a hiring team works — using multiple cooperating AI agents:
+
+- **1.🧾 JD Analyzer** - Extracts key skills, tools, and experience from a job description
+- **2.👤 Resume Screener** - Matches a candidate’s resume against the JD
+- **3.🎤 Interview Evaluator** - Scores the candidate’s answers based on clarity, confidence, and accuracy
+- **4.⭐ Score Aggregator** - Combines all evaluations and gives a final Hire / Maybe / Reject decision
 
 ## 🏗️ Architecture
 
@@ -127,54 +135,6 @@ POST http://localhost:8000/evaluate-candidate
 }
 ```
 
-### Python API
-
-```python
-from backend.recruitment_pipeline import build_pipeline, run_pipeline
-
-# Build the pipeline once
-pipeline = build_pipeline()
-
-# Run evaluation
-result = await run_pipeline(
-    pipeline,
-    job_description="...",
-    resume_text="...",
-    interview_qa=[...]
-)
-
-# Access results
-final_eval = result["final_evaluation"]
-print(f"Recommendation: {final_eval['recommendation']}")
-print(f"Score: {final_eval['overall_score']}%")
-```
-
-### Quick Evaluation
-
-```python
-from backend.recruitment_pipeline import quick_evaluate
-
-# One-liner evaluation
-result = await quick_evaluate(
-    job_description="...",
-    resume_text="...",
-    interview_qa=[...]
-)
-
-print(result)  # Returns final_evaluation dict
-```
-
-## 🧪 Testing
-
-Run the test script to see the pipeline in action:
-
-```bash
-cd backend
-python test_pipeline.py
-```
-
-This will run a complete evaluation with sample data and display all intermediate results.
-
 ## 📊 Evaluation Criteria
 
 ### Resume Screening
@@ -201,108 +161,6 @@ Recommendation Thresholds:
 - 0-49:   No Hire
 ```
 
-## 🔧 Configuration
-
-### Environment Variables
-```bash
-GOOGLE_API_KEY=your_gemini_api_key_here
-```
-
-### Customization
-
-**Adjust scoring weights** in `score_aggregator.py`:
-```python
-# Current: Resume 40%, Interview 60%
-overall_score = int((resume_score * 0.4) + (interview_score * 0.6))
-
-# Example: Equal weight
-overall_score = int((resume_score * 0.5) + (interview_score * 0.5))
-```
-
-**Modify recommendation thresholds** in `score_aggregator.py`:
-```python
-if overall_score >= 80:
-    recommendation = "Strong Hire"
-# ... adjust as needed
-```
-
-## 🏃 Running the Pipeline
-
-### Option 1: FastAPI Endpoint
-```bash
-# Start the server
-cd backend
-uvicorn main:app --reload
-
-# Call the endpoint
-curl -X POST http://localhost:8000/evaluate-candidate \
-  -H "Content-Type: application/json" \
-  -d @sample_request.json
-```
-
-### Option 2: Python Script
-```python
-import asyncio
-from recruitment_pipeline import build_pipeline, run_pipeline
-
-async def main():
-    pipeline = build_pipeline()
-    result = await run_pipeline(
-        pipeline,
-        job_description="...",
-        resume_text="...",
-        interview_qa=[...]
-    )
-    print(result["final_evaluation"])
-
-asyncio.run(main())
-```
-
-### Option 3: Direct Import
-```python
-# In your existing code
-from backend.recruitment_pipeline import build_pipeline
-
-pipeline = build_pipeline()
-# Use pipeline in your application
-```
-
-## 📁 File Structure
-
-```
-backend/
-├── recruitment_pipeline.py          # Main pipeline orchestration
-├── langgraph_nodes/
-│   ├── __init__.py
-│   ├── jd_analyzer.py              # Job description analysis
-│   ├── resume_screener.py          # Resume screening
-│   ├── interview_evaluator.py      # Interview evaluation
-│   └── score_aggregator.py         # Final scoring
-├── test_pipeline.py                 # Test script
-└── main.py                          # FastAPI endpoints
-```
-
-## 🔍 Debugging
-
-Enable detailed logging:
-```python
-import logging
-logging.basicConfig(level=logging.INFO)
-```
-
-Check pipeline status:
-```bash
-# Health check endpoint
-curl http://localhost:8000/health
-
-# Response:
-{
-  "status": "ok",
-  "gemini": "available",
-  "api_key_set": true
-}
-```
-
 ## 🚨 Error Handling
 
 The pipeline includes robust fallbacks:
@@ -318,63 +176,4 @@ The pipeline includes robust fallbacks:
 4. **Review intermediate outputs** to understand the evaluation flow
 5. **Adjust weights and thresholds** based on your hiring criteria
 
-## 📝 Example Use Cases
 
-### 1. Batch Candidate Processing
-```python
-candidates = [...]  # List of candidates
-results = []
-
-for candidate in candidates:
-    result = await run_pipeline(
-        pipeline,
-        job_description=jd,
-        resume_text=candidate["resume"],
-        interview_qa=candidate.get("interview", [])
-    )
-    results.append(result["final_evaluation"])
-
-# Sort by score
-results.sort(key=lambda x: x["overall_score"], reverse=True)
-```
-
-### 2. Resume-Only Screening
-```python
-# Skip interview if not available
-result = await run_pipeline(
-    pipeline,
-    job_description=jd,
-    resume_text=resume,
-    interview_qa=[]  # Empty list
-)
-```
-
-### 3. Integration with Existing Systems
-```python
-# Your application
-from recruitment_pipeline import build_pipeline
-
-# Initialize once
-recruitment_pipeline = build_pipeline()
-
-# Use in your evaluation flow
-def evaluate_applicant(applicant_data):
-    result = await run_pipeline(
-        recruitment_pipeline,
-        **applicant_data
-    )
-    return result
-```
-
-## 🔗 Related Endpoints
-
-- `POST /analyze-jd` - Standalone JD analysis
-- `POST /screen-resume` - Standalone resume screening
-- `POST /screen-resume-file` - Resume screening with file upload
-- `POST /generate-interview` - Generate interview questions
-- `POST /score-answer` - Score individual interview answers
-- `POST /evaluate-candidate` - **Complete pipeline** (recommended)
-
----
-
-**Built with:** LangGraph, LangChain, Google Gemini, FastAPI

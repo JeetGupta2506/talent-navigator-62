@@ -4,6 +4,10 @@ from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import re
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 try:
     from . import gemini_client

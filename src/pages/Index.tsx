@@ -52,13 +52,13 @@ const Index = () => {
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Upload</span>
             </TabsTrigger>
-            <TabsTrigger value="candidates" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Candidates</span>
-            </TabsTrigger>
             <TabsTrigger value="interview" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               <span className="hidden sm:inline">Interview</span>
+            </TabsTrigger>
+            <TabsTrigger value="candidates" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Candidates</span>
             </TabsTrigger>
           </TabsList>
 
@@ -72,16 +72,16 @@ const Index = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="candidates">
-            <CandidateList candidates={candidates} />
-          </TabsContent>
-
           <TabsContent value="interview">
             <InterviewInterface 
               candidates={candidates} 
               jobDescription={jobDescription}
               onCandidateUpdate={handleCandidateUpdate}
             />
+          </TabsContent>
+
+          <TabsContent value="candidates">
+            <CandidateList candidates={candidates} />
           </TabsContent>
         </Tabs>
       </main>

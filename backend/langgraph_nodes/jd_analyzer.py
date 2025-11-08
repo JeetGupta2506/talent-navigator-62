@@ -120,6 +120,9 @@ async def jd_analyzer(state: Dict[str, Any]) -> Dict[str, Any]:
 
         parsed = _safe_parse_json(raw_out)
 
+        equired_skills = [s.strip().lower() for s in (parsed.get("required_skills") or parsed.get("skills") or [])]
+        tools = [s.strip().lower() for s in (parsed.get("tools") or parsed.get("technologies") or [])]
+
         # normalize keys to expected shape
         normalized = {
             "role": parsed.get("role") or parsed.get("position") or "",

@@ -48,25 +48,85 @@ const CandidateList = ({ candidates }: CandidateListProps) => {
               <div className="space-y-1">
                 <h3 className="text-lg font-semibold">{candidate.candidateName}</h3>
                 <p className="text-sm text-muted-foreground">{candidate.fileName}</p>
+                {candidate.interviewCompleted && (
+                  <Badge variant="secondary" className="mt-1">
+                    Interview Completed ✓
+                  </Badge>
+                )}
               </div>
               <div className="flex items-center gap-2">
-                {getScoreIcon(candidate.matchScore)}
-                <span className={`text-2xl font-bold ${getScoreColor(candidate.matchScore)}`}>
-                  {candidate.matchScore}%
-                </span>
+                {candidate.interviewCompleted ? (
+                  <>
+                    {getScoreIcon(candidate.finalScore)}
+                    <div className="text-right">
+                      <p className={`text-2xl font-bold ${getScoreColor(candidate.finalScore)}`}>
+                        {candidate.finalScore}%
+                      </p>
+                      <p className="text-xs text-muted-foreground">Final Score</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {getScoreIcon(candidate.matchScore)}
+                    <span className={`text-2xl font-bold ${getScoreColor(candidate.matchScore)}`}>
+                      {candidate.matchScore}%
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
             <div className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-muted-foreground">Match Score</span>
-                  <span className={`font-medium ${getScoreColor(candidate.matchScore)}`}>
-                    {candidate.matchScore}%
-                  </span>
+              {/* Show final evaluation if interview completed */}
+              {candidate.interviewCompleted && (
+                <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold text-base">Final Evaluation</h4>
+                    <Badge 
+                      variant={
+                        candidate.recommendation === "Strong Hire" || candidate.recommendation === "Hire" 
+                          ? "default" 
+                          : candidate.recommendation === "Maybe" 
+                          ? "secondary" 
+                          : "destructive"
+                      }
+                      className="text-sm"
+                    >
+                      {candidate.recommendation}
+                    </Badge>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-3 text-sm">
+                    <div className="bg-background rounded p-2">
+                      <p className="text-muted-foreground text-xs">Resume Match</p>
+                      <p className="font-semibold">{candidate.matchScore}% (50%)</p>
+                    </div>
+                    <div className="bg-background rounded p-2">
+                      <p className="text-muted-foreground text-xs">Interview Score</p>
+                      <p className="font-semibold">{candidate.interviewScore}% (50%)</p>
+                    </div>
+                    <div className="bg-background rounded p-2">
+                      <p className="text-muted-foreground text-xs">Combined</p>
+                      <p className={`font-bold ${getScoreColor(candidate.finalScore)}`}>
+                        {candidate.finalScore}%
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <Progress value={candidate.matchScore} className="h-2" />
-              </div>
+              )}
+
+              {/* Resume match score (shown when no interview yet) */}
+              {!candidate.interviewCompleted && (
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-muted-foreground">Resume Match Score</span>
+                    <span className={`font-medium ${getScoreColor(candidate.matchScore)}`}>
+                      {candidate.matchScore}%
+                    </span>
+                  </div>
+                  <Progress value={candidate.matchScore} className="h-2" />
+                </div>
+              )}
 
               {candidate.matchedSkills && candidate.matchedSkills.length > 0 && (
                 <div>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { FileText, Users, MessageSquare, BarChart3, Sparkles } from "lucide-react";
+import { FileText, Users, MessageSquare } from "lucide-react";
 import JobDescriptionUpload from "@/components/hr/JobDescriptionUpload";
 import ResumeUpload from "@/components/hr/ResumeUpload";
 import CandidateList from "@/components/hr/CandidateList";
@@ -12,6 +12,19 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("upload");
   const [jobDescription, setJobDescription] = useState<string>("");
   const [candidates, setCandidates] = useState<any[]>([]);
+
+  const handleCandidateUpdate = (candidateName: string, interviewData: any) => {
+    setCandidates(prevCandidates => 
+      prevCandidates.map(candidate => 
+        candidate.candidateName === candidateName
+          ? { ...candidate, ...interviewData }
+          : candidate
+      )
+    );
+    
+    // Automatically switch to candidates tab to show results
+    setActiveTab("candidates");
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -34,7 +47,7 @@ const Index = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+          <TabsList className="grid w-full grid-cols-3 lg:w-[450px]">
             <TabsTrigger value="upload" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Upload</span>
@@ -46,10 +59,6 @@ const Index = () => {
             <TabsTrigger value="interview" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               <span className="hidden sm:inline">Interview</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
           </TabsList>
 
@@ -68,14 +77,11 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="interview">
-            <InterviewInterface candidates={candidates} jobDescription={jobDescription} />
-          </TabsContent>
-
-          <TabsContent value="analytics">
-            <Card className="p-6">
-              <h3 className="text-xl font-semibold mb-4">Recruitment Analytics</h3>
-              <p className="text-muted-foreground">Analytics dashboard coming soon...</p>
-            </Card>
+            <InterviewInterface 
+              candidates={candidates} 
+              jobDescription={jobDescription}
+              onCandidateUpdate={handleCandidateUpdate}
+            />
           </TabsContent>
         </Tabs>
       </main>

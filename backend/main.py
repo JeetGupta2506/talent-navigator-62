@@ -4,10 +4,14 @@ from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import re
 import os
+import logging
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Setup logger
+logger = logging.getLogger(__name__)
 
 try:
     from . import gemini_client

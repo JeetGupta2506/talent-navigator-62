@@ -72,15 +72,19 @@ The pipeline implements a **multi-agent workflow** with four specialized agents:
   - Identified concerns
 
 ### 4. **Score Aggregator Agent** (`langgraph_nodes/score_aggregator.py`)
-- **Purpose**: Combines all evaluations into final hiring recommendation
+- **Purpose**: Combines all evaluations into final hiring recommendation using LLM-generated summary
 - **Scoring Weights**:
-  - Resume: 40%
-  - Interview: 60%
-- **Output**:
-  - Overall score (0-100)
-  - Recommendation: "Strong Hire" | "Hire" | "Maybe" | "No Hire"
-  - Executive summary
-  - Key strengths and concerns
+  - Resume: 50%
+  - Interview: 50%
+- **Output** (`final_report`):
+  - Overall score (0-100, float)
+  - Recommendation: "Hire" | "Maybe" | "Reject"
+  - HR-style summary paragraph (AI-generated, context-aware)
+- **Features**:
+  - Uses Gemini LLM to generate professional evaluation summaries
+  - Analyzes strengths and concerns from all agents
+  - Provides actionable hiring recommendations
+  - JSON parsing with regex fallback for reliability
 
 ## 🚀 Usage
 
@@ -152,7 +156,7 @@ POST http://localhost:8000/evaluate-candidate
 
 ### Final Scoring
 ```
-Overall Score = (Resume Score × 0.4) + (Interview Score × 0.6)
+Overall Score = (Resume Score × 0.5) + (Interview Score × 0.5)
 
 Recommendation Thresholds:
 - 80-100: Strong Hire

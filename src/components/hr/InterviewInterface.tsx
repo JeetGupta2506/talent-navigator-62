@@ -11,9 +11,10 @@ import { generateInterviewQuestions, scoreAnswer } from "@/services/api";
 interface InterviewInterfaceProps {
   candidates: any[];
   jobDescription?: string;
+  onCandidateUpdate?: (candidateName: string, interviewData: any) => void;
 }
 
-const InterviewInterface = ({ candidates, jobDescription }: InterviewInterfaceProps) => {
+const InterviewInterface = ({ candidates, jobDescription, onCandidateUpdate }: InterviewInterfaceProps) => {
   const [selectedCandidate, setSelectedCandidate] = useState<string>("");
   const [questions, setQuestions] = useState<any[]>([]);
   // store draft answers per-question so typing in one box doesn't affect others
@@ -111,6 +112,43 @@ const InterviewInterface = ({ candidates, jobDescription }: InterviewInterfacePr
         title: "Answer Scored",
         description: `Score: ${data.score}/100`,
       });
+
+      // Check if all questions are answered
+      const allAnswered = updatedQuestions.every(q => q.answer && q.score !== undefined);
+      
+      if (allAnswered && selectedCandidate && onCandidateUpdate) {
+        // Calculate average interview score
+        const totalInterviewScore = updatedQuestions.reduce((sum, q) => sum + (q.score || 0), 0);
+        const averageInterviewScore = Math.round(totalInterviewScore / updatedQuestions.length);
+        
+        // Get candidate's resume score
+        const candidate = candidates.find(c => c.candidateName === selectedCandidate);
+        const resumeScore = candidate?.matchScore || 0;
+        
+        // Calculate final combined score (Resume 50% + Interview 50%)
+        const finalScore = Math.round((resumeScore * 0.5) + (averageInterviewScore * 0.5));
+        
+        // Determine recommendation
+        let recommendation = "No Hire";
+        if (finalScore >= 80) recommendation = "Strong Hire";
+        else if (finalScore >= 65) recommendation = "Hire";
+        else if (finalScore >= 50) recommendation = "Maybe";
+        
+        // Update candidate with final evaluation
+        onCandidateUpdate(selectedCandidate, {
+          interviewScore: averageInterviewScore,
+          finalScore: finalScore,
+          recommendation: recommendation,
+          interviewCompleted: true,
+          interviewQuestions: updatedQuestions
+        });
+        
+        toast({
+          title: "Interview Complete! 🎉",
+          description: `Final Score: ${finalScore}% - Recommendation: ${recommendation}`,
+        });
+      }
+      
     } catch (error) {
       console.error("Scoring error:", error);
       toast({

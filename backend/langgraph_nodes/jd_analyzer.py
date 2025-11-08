@@ -85,13 +85,22 @@ async def jd_analyzer(state: Dict[str, Any]) -> Dict[str, Any]:
     try:
         from langchain_google_genai import ChatGoogleGenerativeAI
         from langchain_core.messages import HumanMessage
+        import os
     except Exception as e:
         logger.exception("Failed to import LangChain's Gemini integration: %s", e)
         raise RuntimeError("LangChain Google Gemini integration not available. Try: pip install langchain-google-genai")
 
-    # instantiate model with Google's Gemini Pro
+    # instantiate model with Google's Gemini Pro - use API key from environment
     try:
-        model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0)
+        api_key = os.environ.get("GOOGLE_API_KEY")
+        if not api_key:
+            raise RuntimeError("GOOGLE_API_KEY environment variable not set")
+        
+        model = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash", 
+            temperature=0,
+            google_api_key=api_key
+        )
     except Exception as e:
         logger.exception("Failed to instantiate Gemini model: %s", e)
         raise

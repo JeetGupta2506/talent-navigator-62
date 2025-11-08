@@ -72,8 +72,17 @@ async def interview_evaluator(state: Dict[str, Any]) -> Dict[str, Any]:
     try:
         from langchain_google_genai import ChatGoogleGenerativeAI
         from langchain_core.messages import HumanMessage
+        import os
         
-        model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.3)
+        api_key = os.environ.get("GOOGLE_API_KEY")
+        if not api_key:
+            raise RuntimeError("GOOGLE_API_KEY environment variable not set")
+        
+        model = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash", 
+            temperature=0.3,
+            google_api_key=api_key
+        )
         
         # Build Q&A text
         qa_text = "\n\n".join([

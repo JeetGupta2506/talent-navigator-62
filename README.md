@@ -180,4 +180,11 @@ The pipeline includes robust fallbacks:
 4. **Review intermediate outputs** to understand the evaluation flow
 5. **Adjust weights and thresholds** based on your hiring criteria
 
+## 📸 ScreenShots
+
+![Landing page](<screenshots/Upload.png>)
+![bot](<screenshots/bot.png>)
+![score](<screenshots/score.png>)
+
+
 

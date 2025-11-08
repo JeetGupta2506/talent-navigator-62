@@ -189,7 +189,7 @@ const ResumeUpload = ({ jobDescription, onCandidatesUpdate }: ResumeUploadProps)
             </div>
             
             <p className="text-xs text-muted-foreground">
-              Supports multiple .txt, .pdf, .doc, or .docx files
+              Supports .pdf files
             </p>
           </div>
         </div>
